@@ -1,4 +1,8 @@
 <?php
+/**
+ * A script to test and demonstrate the public interface of the DocBlock class
+ *
+ */
 require 'DocBlock.class.php';
 #define('TEST_FILE', __DIR__.DIRECTORY_SEPARATOR.'docblock-samples.txt');
 #define('TEST_DATA', file_get_contents(TEST_FILE));

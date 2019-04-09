@@ -379,6 +379,14 @@ class DocBlock {
 
 
 
+	/**
+	 * Parses a block of DocBlock text and returns an array of lines stripped
+	 * of extraneous characters 
+	 *
+	 * @param  string $block_text The DocBlock text to parse
+	 * @return array  An array of strings, each element representing one line
+	 *                in the DocBlock text
+	 */
 	private static function cleanLines($block_text) {
 		$return = array();
 		foreach (explode("\n",$block_text) as $line) {
@@ -450,13 +458,20 @@ class DocBlock {
 	/**
 	 * Calculates the completion status of documentation throughout the system
 	 *
-	 * @return array An associative array in the form [filename] => complete (0 or 1)
+	 * @param  string $dir The root directory from which to start traversing to
+	 *                     gather stats. If not specified, it defaults to the
+	 *                     the directory this class file is in, which probably
+	 *                     isn't what you want.
+	 * @return array  An associative array in the form [filename] => complete (0 or 1)
 	 */
-	public static function getDocumentationStats() {
+	public static function getDocumentationStats($dir = __DIR__) {
 		$return = array();
 		$accepted_extensions = array('php','sql','css','js');
-		$files = self::getFilesIn();
+		$files = self::getFilesIn($dir);
 		foreach ($files as $filename) {
+			if (preg_match('~\.git~',$filename)) {
+				continue;
+			}
 			$basename = basename($filename);
 			if ($basename == '.docblock') {continue;}
 			$std_file = self::standardizeFilename($filename);
@@ -505,10 +520,30 @@ class DocBlock {
 
 
 
+	/**
+	 * Gets all @todo tags from the entire project
+	 *
+	 * This method is intended to be used to quickly extract a list of all
+	 * to-do's scattered in comments throughout the project.
+	 *
+	 * @return array An array of strings representing all of the @todo tags
+	 *               in the project
+	 */
 	public static function getAllTodos() {
 		return self::getAllTagsByType('@todo');
 	}
 
+
+
+	/**
+	 * Gets all @deprecated tags from the entire project
+	 *
+	 * This method is intended to be used to quickly extract a list of all
+	 * deprecations scattered in comments throughout the project.
+	 *
+	 * @return array An array of strings representing all of the @deprecated
+	 *               tags in the project
+	 */
 	public static function getAllDeprecations() {
 		return self::getAllTagsByType('@deprecated');
 	}

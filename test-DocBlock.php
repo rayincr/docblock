@@ -1,7 +1,7 @@
 <?php
 require 'DocBlock.class.php';
-define('TEST_FILE', __DIR__.DIRECTORY_SEPARATOR.'test-data.txt');
-define('TEST_DATA', file_get_contents(TEST_FILE));
+#define('TEST_FILE', __DIR__.DIRECTORY_SEPARATOR.'docblock-samples.txt');
+#define('TEST_DATA', file_get_contents(TEST_FILE));
 
 
 echo "\n==== TEST #1 ======================================================================\n\n";

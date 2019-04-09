@@ -1,14 +1,19 @@
 <?php
+require 'TraverseFilesystem.trait.php';
+
 /**
  * Parses source code DocBlocks comments
  *
- * Given a comment block as a string, parses it and returns its component parts.
+ * Given a comment block as a string, parses it and returns its component
+ * parts.
  *
- * @todo Add methods to construct DocBlock text from input and place it in the
- *       right place in the right file.
+ * @todo Add methods to construct DocBlock text from input and place it in
+ *       the right place in the right file.
  * @todo Add the ability to edit existing DocBlocks.
  */
 class DocBlock {
+
+	use TraverseFilesystem;
 
 	private $summary;
 	private $description;
@@ -36,7 +41,7 @@ class DocBlock {
 	 * @param  string $block_text The DocBlock text to be parsed
 	 * @return string The summary portion of the DocBlock
 	 */
-	private static function parseSummary(string $block_text) {
+	private static function parseSummary(string $block_text = NULL) {
 		$lines = self::cleanLines($block_text);
 		$summary = '';
 		foreach ($lines as $line) {
@@ -78,7 +83,7 @@ class DocBlock {
 	 * @param  string $block_text The DocBlock text to be parsed
 	 * @return string The description portion of the DocBlock
 	 */
-	private static function parseDescription(string $block_text) {
+	private static function parseDescription(string $block_text = NULL) {
 		$lines = self::cleanLines($block_text);
 		$description = array();
 		$capturing = FALSE;
@@ -136,7 +141,7 @@ class DocBlock {
 	 * @param  string $block_text The text of the DocBlock
 	 * @return array  An array of strings representing the DocBlock's tags
 	 */
-	private static function parseTags(string $block_text) {
+	private static function parseTags(string $block_text = NULL) {
 		$lines = self::cleanLines($block_text);
 		$i = -1;
 		$tags = array();
@@ -450,14 +455,14 @@ class DocBlock {
 	public static function getDocumentationStats() {
 		$return = array();
 		$accepted_extensions = array('php','sql','css','js');
-		$files = Ophis::getFilesIn();
+		$files = self::getFilesIn();
 		foreach ($files as $filename) {
 			$basename = basename($filename);
 			if ($basename == '.docblock') {continue;}
-			$std_file = Ophis::standardizeFilename($filename);
+			$std_file = self::standardizeFilename($filename);
 			$return[$std_file] = '?'; // default value, unless set below
 			if (is_dir($filename)) {
-				$docblocks = DocBlock::getDocBlocksForFile($filename);
+				$docblocks = self::getDocBlocksForFile($filename);
 				$return[$std_file] = (empty($docblocks)? 0 : 1);
 			} else {
 				$ext = strtolower(preg_replace('~^.+\.([^\.]+)$~',"$1",$basename));
@@ -469,7 +474,7 @@ class DocBlock {
 					case 'sql':
 					case 'js':
 					case 'css':
-						$docblocks = DocBlock::getDocBlocksForFile($filename);
+						$docblocks = self::getDocBlocksForFile($filename);
 						$return[$std_file] = empty($docblocks) ? 0 : 1;
 						break;
 					case 'php':
@@ -486,7 +491,7 @@ class DocBlock {
 								$return[preg_replace('~\.class\.php$~i','',$std_file).'::'.$method_ref->name.'()'] = $method_comment ? 1 : 0;
 							}
 						} else {
-							$docblocks = DocBlock::getDocBlocksForFile($filename);
+							$docblocks = self::getDocBlocksForFile($filename);
 							$return[$std_file] = empty($docblocks) ? 0 : 1;
 						}
 						break;
@@ -520,11 +525,11 @@ class DocBlock {
 	 * @return array An associative array in the form [filename] => tags[]
 	 */
 	private static function getAllTagsByType($type) {
-		$files = Ophis::getFilesIn();
+		$files = self::getFilesIn();
 		$data  = array();
 		foreach ($files as $filename) {
-			$std_filename = Ophis::standardizeFilename($filename);
-			$docblocks = DocBlock::getDocBlocksForFile($filename);
+			$std_filename = self::standardizeFilename($filename);
+			$docblocks = self::getDocBlocksForFile($filename);
 			foreach ($docblocks as $db) {
 				$tags = $db->getTags($type);
 				if (count($tags)) {

@@ -394,7 +394,7 @@ class DocBlock {
 			$line = preg_replace('~\*/$~','',trim($line));
 			$line = preg_replace('~\s+~',' ',trim($line));
 			$line = trim($line);
-			if (!preg_match('~\w~',$line)) { // if there's no real info, it's empty
+			if (!preg_match('~[^/\*]~',preg_replace('~\s+~','',$line))) { // if there's no real info, it's empty
 				$line = '';
 			}
 			if (empty($line) and count($return) == 0) {
